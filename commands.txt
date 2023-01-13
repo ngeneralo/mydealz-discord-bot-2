@@ -1,0 +1,19 @@
+Every command for the bot has to start with "bot "
+
+Start the bot in channel:
+bot start
+
+Stop the bot in channel:
+bot stop
+
+Add new price rule:
+bot add rule <min price> <max price> <min discount> <role id>
+
+Add new buzzword:
+bot add buzzword <buzzword> <role id>
+
+List all rules:
+bot rules
+
+List all buzzwords:
+bot buzzwords
