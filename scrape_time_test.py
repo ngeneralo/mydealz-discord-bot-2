@@ -1,6 +1,8 @@
 from time import perf_counter
-import requests
+from lxml import html
 from bs4 import BeautifulSoup
+
+import requests
 
 main_url = "https://www.mydealz.de/new"
 
@@ -18,6 +20,11 @@ requests_end = perf_counter()
 print(f"requests.get time: {requests_end-request_start}s")
 
 parse_start = perf_counter()
+tree = html.fromstring(html_text)
+parse_end = perf_counter()
+print(f"lxml parse time: {parse_end-parse_start}s")
+
+parse_start = perf_counter()
 soup = BeautifulSoup(html_text, 'html.parser')
 parse_end = perf_counter()
-print(f"Parse time: {parse_end-parse_start}s")
+print(f"bs4 parse time: {parse_end-parse_start}s")
