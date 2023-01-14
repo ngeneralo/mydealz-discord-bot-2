@@ -24,7 +24,15 @@ tree = html.fromstring(html_text)
 parse_end = perf_counter()
 print(f"lxml parse time: {parse_end-parse_start}s")
 
-parse_start = perf_counter()
-soup = BeautifulSoup(html_text, 'html.parser')
-parse_end = perf_counter()
-print(f"bs4 parse time: {parse_end-parse_start}s")
+
+product_class = {"class": "threadGrid thread-clickRoot"}
+title_class = {"class": "cept-tt thread-link linkPlain thread-title--list js-thread-title"}
+
+elements = tree.find_class(product_class["class"])
+
+tag = elements[1].find_class(title_class["class"])
+
+for a_elem in tag:
+    print(a_elem.attrib['title'])
+    print(a_elem.attrib['href'])
+
