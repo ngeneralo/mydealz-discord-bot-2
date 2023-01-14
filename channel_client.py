@@ -27,6 +27,20 @@ class ChannelClient:
     def add_buzzword(self,buzzword:str, role:str):
         self.buzzwords.append((role,buzzword))
     
+    # removes rule at index and returns it
+    def pop_rule(self,index:int):
+        if index < 0 or index >= len(self.price_rules):
+            return
+        role,rule = self.price_rules.pop(index)
+        return rule
+    
+    # removes buzzword...
+    def pop_buzzword(self,index:int):
+        if index < 0 or index >= len(self.buzzwords):
+            return
+        role,word = self.buzzwords.pop(index)
+        return word
+    
     # returns string of roles if valid else returns empty string
     def product_valid(self,product:Product)->tuple[bool,str]:
         roles = set()

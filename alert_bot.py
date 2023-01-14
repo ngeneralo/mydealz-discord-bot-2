@@ -3,7 +3,7 @@ from products import Product,get_latest
 from channel_client import ChannelClient, PriceRule
 import discord
 import json
-import time
+import random
 
 
 # Load credentials
@@ -19,6 +19,8 @@ class AlertBot:
         intents.message_content = True
         self.client = discord.Client(intents = intents)
         self.channel_clients:dict[str,ChannelClient] = {}
+        self.guess_game_on: bool= False
+        self.guess_number : int = 0
 
     async def send_message(self,channel:discord.channel.TextChannel, reponse:str):
         try:
@@ -26,59 +28,109 @@ class AlertBot:
         except Exception as e:
             print(e)
     
-    async def handle_bot_message(self,message:discord.message.Message):
-        user_channel= message.channel
-        cmd = str(message.content).split()
+    async def handle_message(self,message:discord.message.Message):
+        content = str(message.content).split('\n')
+        for user_message in content:
+            print(user_message)
+            # help handler
+            if user_message.lower().startswith("!help"):
+                with open('commands.txt','r') as file:
+                    await self.send_message(message.channel,file.read())
+            elif user_message.lower().startswith("!bot "):
+                await self.send_message(message.channel,"**!bot** command is not used anymore.")
+            # guess the number
+            elif user_message.lower() == "!guess" and not self.guess_game_on:
+                await self.send_message(message.channel,"Ich habe eine Zahl von 1-10. Rate sie!")
+                self.guess_game_on = True
+                self.guess_number = random.randint(1,10)
+            elif user_message.isnumeric() and self.guess_game_on:
+                if int(user_message) == self.guess_number:
+                    response = "Richtig!\n"
+                else:
+                    response = "Falsch!\n"
+                response += f"Meine Zahl war {self.guess_number}."
+                await self.send_message(message.channel,response)
+                self.guess_game_on = False
+            # default handler
+            elif user_message.lower().startswith("!"):
+                await self.handle_bot_message(message,user_message)
+            
+
+    async def handle_bot_message(self,message:discord.message.Message,user_message:str):
+        user_channel = message.channel
+        cmd = str(user_message).split()
         while len(cmd) < 7:
             cmd.append('#')
         
         # starts bot in channel 
-        if cmd[1] == "start":
+        if cmd[0] == "!start":
             if user_channel.id not in self.channel_clients:
                 new_client = ChannelClient(user_channel)
                 self.channel_clients[user_channel.id] = new_client
-                print(f"{user_channel} add to client list.")
-                await self.send_message(user_channel,"BOT START\n*There are no rules for this bot yet.*")
+                print(f"{user_channel} starts bot")
+                await self.send_message(user_channel,"BOT START\n")
         
         if user_channel.id not in self.channel_clients:
             return
 
         # since here, bot must be started in channel
         channel_client = self.channel_clients[user_channel.id]
-        if cmd[1] == "stop":
+        if cmd[0] == "!stop":
             self.channel_clients.pop(user_channel.id)
-            print(f"{user_channel} deleted from client list.")
+            print(f"{user_channel} stops bot")
+            await self.send_message(user_channel,"BOT STOP\n")
         
-        if cmd[1] == "rules":
+        if cmd[0] == "!rules":
             msg = "The price rules are:\n"
             for i,v in enumerate(channel_client.price_rules,start=1):
                 role,rule = v
                 msg += f"{i}. {rule} Role: {role}\n"
             await self.send_message(user_channel,msg)
         
-        if cmd[1] == "buzzwords":
+        if cmd[0] == "!buzzwords":
             msg = "The buzzwords are:\n"
             for i,v in enumerate(channel_client.buzzwords,start=1):
                 role,word = v
                 msg += f"{i}. {word} Role: {role}\n"
             await self.send_message(user_channel,msg)
         
-        if cmd[1] == "add" and cmd[2] == "rule":
+        if cmd[0] == "!add" and cmd[1] == "rule":
             try:
-                min_price, max_price = float(cmd[3]), float(cmd[4])
-                min_disc = int(cmd[5])
-                role = cmd[6]
-                channel_client.add_rule(PriceRule(min_price,max_price,min_disc),role)
-                print(f"New rule added. ({user_channel})")
+                min_price, max_price = float(cmd[2]), float(cmd[3])
+                min_disc = int(cmd[4])
+                role = cmd[5]
+                rule = PriceRule(min_price,max_price,min_disc)
+                channel_client.add_rule(rule,role)
+                await self.send_message(user_channel,f"New rule: {rule}")
             except:
                 await self.send_message(user_channel,"*Invalid format*\n"+
                 "bot add rule <min price> <max price> <min discount> <role id>")
         
-        if cmd[1] == "add" and cmd[2] == "buzzword":
-            word = cmd[3]
-            role = cmd[4]
+        if cmd[0] == "!add" and cmd[1] == "buzzword":
+            word = cmd[2]
+            role = cmd[3]
             channel_client.add_buzzword(word,role)
-            print(f"New buzzword added. ({user_channel})")
+            await self.send_message(user_channel,f"New buzzword: {word}")
+        
+        if cmd[0] == "!del" and cmd[1] == "rule":
+            if cmd[2].isnumeric():
+                index = int(cmd[2])-1
+                rule = channel_client.pop_rule(index)
+                if rule:
+                    await self.send_message(user_channel,f"Delete rule: {rule}\n"+
+                    "*Attention: a deletion change the index.*")
+                    return
+            await self.send_message(user_channel,"*Invalid index*")
+
+        if cmd[0] == "!del" and cmd[1] == "buzzword":
+            if cmd[2].isnumeric():
+                index = int(cmd[2])-1
+                rule = channel_client.pop_buzzword(index)
+                if rule:
+                    await self.send_message(user_channel,f"Delete buzzword: {rule}\n"+
+                    "*Attention: a deletion change the index*")
+                    return
+            await self.send_message(user_channel,"*Invalid index*")
     
 
     def run(self):
@@ -104,15 +156,13 @@ class AlertBot:
             if message.author == self.client.user:
                 return
 
-            username = str(message.author)
-            user_message = str(message.content)
-            channel = str(message.channel.id)
-            print(f"{username} said: '{user_message}' ({channel})")
-
-            if user_message.lower().startswith("bot "):
-                await self.handle_bot_message(message)
+            #handle message
+            try:
+                await self.handle_message(message)
+            except Exception as e:
+                print(e)
             
-        
+            
         self.client.run(TOKEN)
 
 
