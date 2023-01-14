@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from lxml import html
 import requests
 
 
@@ -42,54 +42,50 @@ class Product:
         return text
 
 
-def get_latest():
+def get_latest(limit:int = 5):
     main_url = "https://www.mydealz.de/new"
 
     header = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "+\
             "(KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36 OPR/55.0.2994.61"
             }
+
+    product_class = "threadGrid thread-clickRoot"
+    title_class = "cept-tt thread-link linkPlain thread-title--list js-thread-title"
+    price_class = "thread-price text--b cept-tp size--all-l size--fromW3-xl"
+    old_price_class = "mute--text text--lineThrough size--all-l size--fromW3-xl"
+    discount_class = "space--ml-1 size--all-l size--fromW3-xl"    
     
-    product_class = {"class": "threadGrid thread-clickRoot"}
-
-    title_class = {
-    "class": "cept-tt thread-link linkPlain thread-title--list js-thread-title"}
-
-    price_class = {
-    "class": "thread-price text--b cept-tp size--all-l size--fromW3-xl"}
-
-    old_price_class = {
-        "class": "mute--text text--lineThrough size--all-l size--fromW3-xl"}
-
-    discount_class = {"class": "space--ml-1 size--all-l size--fromW3-xl"}
-
     try:
         html_text = requests.get(main_url, headers=header, timeout=20).text
     except requests.exceptions.RequestException as e:
         return None
     
-    soup = BeautifulSoup(html_text, 'lxml')
+    tree = html.fromstring(html_text)
+    elements = tree.find_class(product_class)[:limit]
 
-    for tag in soup.find_all("div", product_class,limit = 5):
-        title = tag.find("a", title_class)
-        name = title['title'][:100]
-        url = title['href']
-        price = tag.find("span", price_class)
-        discount = tag.find("span", discount_class) 
-        old_price = tag.find("span",old_price_class)
+    for tag in elements:
+        title = tag.find_class(title_class)[0]
+        name = str(title.attrib.get('title'))
+        url = str(title.attrib.get('href'))
+
+        price = tag.find_class(price_class)
+        discount = tag.find_class(discount_class)
+        old_price = tag.find_class(old_price_class)
+
         if old_price:
-            old_price = old_price.encode_contents().decode('utf-8')
+            old_price = str(old_price[0].text_content())
             old_price = old_price.replace('.', '').replace('€', '').replace(',', '.')
         if price:
-            price = price.encode_contents().decode('utf-8')
+            price = str(price[0].text_content())
             price = price.replace('.', '').replace('€', '').replace(',', '.')
         if discount:
-            discount = discount.encode_contents().decode('utf-8')
+            discount = str(discount[0].text_content())
             discount = discount.replace('-', '').replace('%', '')
         yield Product(name, url, old_price, price, discount)
 
 
 if __name__ == "__main__":
     for prod in get_latest():
-        print(prod.name,prod.price)
-        break
+        print(prod)
+        print()
