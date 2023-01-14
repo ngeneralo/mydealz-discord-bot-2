@@ -82,7 +82,6 @@ class AlertBot:
     
 
     def run(self):
-
         @tasks.loop(seconds=10)
         async def alert_loop():
             latest = get_latest()

@@ -1,6 +1,5 @@
 from time import perf_counter
 from lxml import html
-from bs4 import BeautifulSoup
 
 import requests
 
@@ -25,14 +24,18 @@ parse_end = perf_counter()
 print(f"lxml parse time: {parse_end-parse_start}s")
 
 
-product_class = {"class": "threadGrid thread-clickRoot"}
-title_class = {"class": "cept-tt thread-link linkPlain thread-title--list js-thread-title"}
+scrape_start = perf_counter()
+product_class = "threadGrid thread-clickRoot"
+title_class = "cept-tt thread-link linkPlain thread-title--list js-thread-title"
 
-elements = tree.find_class(product_class["class"])
+elements = tree.find_class(product_class)
 
-tag = elements[1].find_class(title_class["class"])
-
-for a_elem in tag:
-    print(a_elem.attrib['title'])
-    print(a_elem.attrib['href'])
-
+for element in elements:
+    tag = element.find_class(title_class)[0]
+    title = tag.attrib.get('title')
+    url = tag.attrib.get('href')
+    print(title)
+    print(url)
+    print()
+scrape_end = perf_counter()
+print(f"Scrape time: {scrape_end-scrape_start}s")
