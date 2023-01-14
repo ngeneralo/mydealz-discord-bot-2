@@ -94,7 +94,6 @@ class AlertBot:
                     await self.send_message(cc.channel,msg)
                     print(f"Sent {prod.name[:20]} to {cc.channel}")
                     cc.sended_urls.append(prod.url)
-                time.sleep(1)
         
         @self.client.event
         async def on_ready():
