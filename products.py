@@ -68,7 +68,7 @@ def get_latest():
     except requests.exceptions.RequestException as e:
         return None
     
-    soup = BeautifulSoup(html_text, 'html.parser')
+    soup = BeautifulSoup(html_text, 'lxml')
 
     for tag in soup.find_all("div", product_class,limit = 5):
         title = tag.find("a", title_class)
