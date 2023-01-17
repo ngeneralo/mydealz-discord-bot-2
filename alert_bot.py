@@ -10,7 +10,7 @@ import random
 with open('credentials.json','r') as file:
     creds = json.load(file)
 
-TOKEN = creds["test_token"]
+TOKEN = creds["token"]
 
 
 class AlertBot:
