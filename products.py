@@ -65,10 +65,12 @@ def get_latest(limit:int = 5):
     elements = tree.find_class(product_class)[:limit]
 
     for tag in elements:
-        title = tag.find_class(title_class)[0]
-        name = str(title.attrib.get('title'))
-        url = str(title.attrib.get('href'))
-
+        title = tag.find_class(title_class)
+        if not title:
+            continue
+        name = str(title[0].attrib.get('title'))
+        url = str(title[0].attrib.get('href'))
+        
         price = tag.find_class(price_class)
         discount = tag.find_class(discount_class)
         old_price = tag.find_class(old_price_class)

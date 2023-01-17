@@ -10,7 +10,7 @@ import random
 with open('credentials.json','r') as file:
     creds = json.load(file)
 
-TOKEN = creds["token"]
+TOKEN = creds["test_token"]
 
 
 class AlertBot:
@@ -31,7 +31,6 @@ class AlertBot:
     async def handle_message(self,message:discord.message.Message):
         content = str(message.content).split('\n')
         for user_message in content:
-            print(user_message)
             # help handler
             if user_message.lower().startswith("!help"):
                 with open('commands.txt','r') as file:
@@ -136,7 +135,10 @@ class AlertBot:
     def run(self):
         @tasks.loop(seconds=10)
         async def alert_loop():
-            latest = get_latest()
+            try:
+                latest = list(get_latest())
+            except Exception as e:
+                print("Error in scraping:\n"+e)
             for prod in latest:
                 for cc in self.channel_clients.values():
                     valid,role = cc.product_valid(prod)
@@ -153,15 +155,14 @@ class AlertBot:
         
         @self.client.event
         async def on_message(message: discord.message.Message):
+            print(f"{message.author} ({message.channel}): {message.content} ({message.created_at})\n")
             if message.author == self.client.user:
                 return
-
             #handle message
             try:
                 await self.handle_message(message)
             except Exception as e:
                 print(e)
-            
             
         self.client.run(TOKEN)
 

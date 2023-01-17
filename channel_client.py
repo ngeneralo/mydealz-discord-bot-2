@@ -1,5 +1,6 @@
 import discord
 from products import *
+import json
 
 class PriceRule:
     def __init__(self,min_price = 0, max_price = 0, min_disc = 0):
@@ -13,6 +14,10 @@ class PriceRule:
 
         return f"{min_price_str} - {max_price_str} and {self.min_disc}%"
         
+def dict_to_rule(rdict:dict)->tuple[str,PriceRule]:
+    role = rdict['role']
+    rule = PriceRule(rdict['min_price'],rdict['max_price'],rdict['min_disc'])
+    return role,rule
 
 class ChannelClient:
     def __init__(self,channel:discord.channel.TextChannel):
@@ -20,18 +25,58 @@ class ChannelClient:
         self.price_rules : list[tuple[str,PriceRule]] = []  # (role,PriceRule)
         self.buzzwords : list[tuple[str,str]] = []  # (role,str)
         self.sended_urls : list[str] = []
+        self.read_from_json()
+
+    def to_dict(self):
+        rules_dict = []
+        bw_dict = []
+        for role,word in self.buzzwords:
+            bw_dict += [{"role":role,"word":word}]
+        for role,rule in self.price_rules:
+            rules_dict += [{
+                "role":role,
+                "min_price":rule.min_price,
+                "max_price":rule.max_price,
+                "min_disc":rule.min_disc}]
+        return {"rules":rules_dict,"buzzwords":bw_dict}
+    
+
+    def read_from_json(self):
+        # load data
+        with open('client_data.json','r') as file:
+            data = json.load(file)
+       
+        if str(self.channel.id) not in data.keys():
+            return
+
+        rules = data[str(self.channel.id)]['rules']
+        for rr in rules:
+            try:
+                self.price_rules += [dict_to_rule(rr)]
+            except Exception as e:
+                print("Error in json read",e)
+        
+    def update_json(self):
+        with open('client_data.json','r') as file:
+            data = json.load(file) #load
+        data[str(self.channel.id)] = self.to_dict() #update
+        with open('client_data.json','w') as file:
+            json.dump(data,file,indent=4)
     
     def add_rule(self, rule:PriceRule, role:str):
         self.price_rules.append((role,rule))
+        self.update_json()
     
     def add_buzzword(self,buzzword:str, role:str):
         self.buzzwords.append((role,buzzword))
+        self.update_json()
     
     # removes rule at index and returns it
     def pop_rule(self,index:int):
         if index < 0 or index >= len(self.price_rules):
             return
         role,rule = self.price_rules.pop(index)
+        self.update_json()
         return rule
     
     # removes buzzword...
@@ -39,6 +84,7 @@ class ChannelClient:
         if index < 0 or index >= len(self.buzzwords):
             return
         role,word = self.buzzwords.pop(index)
+        self.update_json()
         return word
     
     # returns string of roles if valid else returns empty string

@@ -5,5 +5,9 @@ perf_start = perf_counter()
 for prod in get_latest():
     print(prod)
 perf_end = perf_counter()
+print(f"Time: {perf_end-perf_start}s")
 
+perf_start = perf_counter()
+print(list(get_latest()))
+perf_end = perf_counter()
 print(f"Time: {perf_end-perf_start}s")
