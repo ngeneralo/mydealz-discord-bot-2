@@ -38,7 +38,7 @@ class AlertBot:
             elif user_message.lower().startswith("!bot "):
                 await self.send_message(message.channel,"**!bot** command is not used anymore.")
             # guess the number
-            elif user_message.lower() == "!guess" and not self.guess_game_on:
+            elif user_message.lower() == "!guess":
                 await self.send_message(message.channel,"Ich habe eine Zahl von 1-10. Rate sie!")
                 self.guess_game_on = True
                 self.guess_number = random.randint(1,10)
