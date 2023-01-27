@@ -45,16 +45,20 @@ class ChannelClient:
         # load data
         with open('client_data.json','r') as file:
             data = json.load(file)
-       
         if str(self.channel.id) not in data.keys():
             return
-
         rules = data[str(self.channel.id)]['rules']
         for rr in rules:
             try:
                 self.price_rules += [dict_to_rule(rr)]
             except Exception as e:
-                print("Error in json read",e)
+                print("Error in json read ",e)
+        buzzwords = data[str(self.channel.id)]['buzzwords']
+        for bw in buzzwords:
+            try:
+                self.buzzwords += [(bw['role'],bw['word'])]
+            except Exception as e:
+                print("Error in json read ",e)
         
     def update_json(self):
         with open('client_data.json','r') as file:
