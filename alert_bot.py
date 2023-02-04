@@ -58,8 +58,6 @@ class AlertBot:
     async def handle_bot_message(self,message:discord.message.Message,user_message:str):
         user_channel = message.channel
         cmd = str(user_message).split()
-        while len(cmd) < 7:
-            cmd.append('#')
         
         # starts bot in channel 
         if cmd[0] == "!start":
@@ -95,9 +93,9 @@ class AlertBot:
         
         if cmd[0] == "!add" and cmd[1] == "rule":
             try:
-                min_price, max_price = float(cmd[2]), float(cmd[3])
-                min_disc = int(cmd[4])
-                role = cmd[5]
+                min_price, max_price = float(cmd[3]), float(cmd[4])
+                min_disc = int(cmd[5])
+                role = cmd[2]
                 rule = PriceRule(min_price,max_price,min_disc)
                 channel_client.add_rule(rule,role)
                 await self.send_message(user_channel,f"New rule: {rule}")
@@ -106,8 +104,8 @@ class AlertBot:
                 "bot add rule <min price> <max price> <min discount> <role id>")
         
         if cmd[0] == "!add" and cmd[1] == "buzzword":
-            word = cmd[2]
-            role = cmd[3]
+            word = ' '.join(cmd[3:])
+            role = cmd[2]
             channel_client.add_buzzword(word,role)
             await self.send_message(user_channel,f"New buzzword: {word}")
         
@@ -137,16 +135,16 @@ class AlertBot:
         async def alert_loop():
             try:
                 latest = list(get_latest())
+                for prod in latest:
+                    for cc in self.channel_clients.values():
+                        valid,role = cc.product_valid(prod)
+                        if not valid: continue
+                        msg = f"{role}\n{prod}"
+                        await self.send_message(cc.channel,msg)
+                        print(f"Sent {prod.name[:20]} to {cc.channel}")
+                        cc.sended_urls.append(prod.url)
             except Exception as e:
-                print("Error in scraping:\n"+e)
-            for prod in latest:
-                for cc in self.channel_clients.values():
-                    valid,role = cc.product_valid(prod)
-                    if not valid: continue
-                    msg = f"{role}\n{prod}"
-                    await self.send_message(cc.channel,msg)
-                    print(f"Sent {prod.name[:20]} to {cc.channel}")
-                    cc.sended_urls.append(prod.url)
+                print("Loop error ",e)
         
         @self.client.event
         async def on_ready():

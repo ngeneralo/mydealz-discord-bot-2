@@ -5,10 +5,10 @@ Stop the bot in channel:
 **!stop**
 
 Add new price rule:
-**!add rule** <min price> <max price> <min discount> <role id>
+**!add rule** <role id> <min price> <max price> <min discount> 
 
 Add new buzzword:
-**!add buzzword** <buzzword> <role id>
+**!add buzzword** <role id> <buzzwords>
 
 Delete price rule:
 **!del rule** <index>

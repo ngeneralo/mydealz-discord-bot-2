@@ -34,19 +34,15 @@
             {
                 "role": "<@&1050054439534350346>",
                 "word": "Gutscheinfehler"
-            },
-            {
-                "role": "Fehler",
-                "word": "Preis"
             }
         ]
     },
     "1064509880221847593": {
         "rules": [
             {
-                "role": "Test",
+                "role": "<@&1050420113117040771>",
                 "min_price": 0.0,
-                "max_price": 1000.0,
+                "max_price": 100.0,
                 "min_disc": 0
             }
         ],
