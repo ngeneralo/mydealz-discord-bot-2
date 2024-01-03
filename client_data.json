@@ -4,26 +4,26 @@
             {
                 "role": "<@&1050053340911910963>",
                 "min_price": 50.0,
-                "max_price": 99.99,
+                "max_price": 100.0,
                 "min_disc": 80
             },
             {
                 "role": "<@&1050053340911910963>",
-                "min_price": 1001.0,
-                "max_price": 999999999.0,
+                "min_price": 100.02,
+                "max_price": 300.0,
+                "min_disc": 55
+            },
+            {
+                "role": "<@&1050053340911910963>",
+                "min_price": 300.02,
+                "max_price": 999999999999999.0,
                 "min_disc": 40
             },
             {
                 "role": "<@&1050053340911910963>",
-                "min_price": 100.0,
-                "max_price": 499.99,
-                "min_disc": 60
-            },
-            {
-                "role": "<@&1050053340911910963>",
-                "min_price": 500.0,
-                "max_price": 1000.99,
-                "min_disc": 50
+                "min_price": 1.0,
+                "max_price": 49.99,
+                "min_disc": 95
             }
         ],
         "buzzwords": [
@@ -34,18 +34,39 @@
             {
                 "role": "<@&1050054439534350346>",
                 "word": "Gutscheinfehler"
+            },
+            {
+                "role": "<@&1050054439534350346>",
+                "word": "Fehler"
+            },
+            {
+                "role": "<@&1050054439534350346>",
+                "word": "Preis Fehler"
+            },
+            {
+                "role": "<@&1050054439534350346>",
+                "word": "Gutschein Fehler"
+            },
+            {
+                "role": "<@&1090900246294433852>",
+                "word": "Surface Pro"
+            },
+            {
+                "role": "<@&1090900246294433852>",
+                "word": "Animonda"
+            },
+            {
+                "role": "<@&1091440197679452192>",
+                "word": "Freebie"
+            },
+            {
+                "role": "<@&1090900246294433852>",
+                "word": "Kaspersky"
             }
         ]
     },
-    "1064509880221847593": {
-        "rules": [
-            {
-                "role": "<@&1050420113117040771>",
-                "min_price": 0.0,
-                "max_price": 100.0,
-                "min_disc": 0
-            }
-        ],
+    "1169366979992375397": {
+        "rules": [],
         "buzzwords": []
     }
 }

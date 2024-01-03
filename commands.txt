@@ -1,3 +1,6 @@
+Bot says hi (lebt er noch?):
+**!hi**
+
 Start the bot in channel:
 **!start**
 
