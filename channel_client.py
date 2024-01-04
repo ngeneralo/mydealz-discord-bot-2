@@ -2,6 +2,8 @@ import discord
 from products import *
 import json
 
+MAIN_ALERT = 1063857337221263421
+
 class PriceRule:
     def __init__(self,min_price = 0, max_price = 0, min_disc = 0):
         self.min_price = min_price
@@ -96,8 +98,11 @@ class ChannelClient:
         roles = set()
         valid = False
 
-        if product.url in self.sended_urls:
-            return False,""
+        # check if product is in sent_alerts.json
+        with open('sent_alerts.json','r') as file:
+            sent_alerts = json.load(file)
+        if self.channel.id == MAIN_ALERT and product.product_code in sent_alerts:
+            return False,''
 
         for role,rule in self.price_rules:
             price_valid = (product.old_price >= rule.min_price) and (product.old_price <= rule.max_price)
@@ -111,3 +116,17 @@ class ChannelClient:
                 roles.add(role)
         
         return valid,' '.join(roles)
+    
+    def add_product_to_file(self, timestamp_utc, product:Product):
+        if self.channel.id != MAIN_ALERT:
+            return
+        timestamp = timestamp_utc.astimezone().replace(tzinfo=None)
+        product_code = product.product_code
+        with open('sent_alerts.json','r') as file:
+            sent_alerts = json.load(file)
+        if product_code not in sent_alerts:
+            sent_alerts[product_code] = {"datetime": str(timestamp),
+                         "url": product.url}
+        with open('sent_alerts.json','w') as file:
+            json.dump(sent_alerts, file, indent=4)
+        

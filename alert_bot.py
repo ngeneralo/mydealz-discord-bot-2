@@ -7,7 +7,7 @@ import random
 
 # Load credentials
 with open('credentials.json', 'r') as file:
-  creds = json.load(file)
+    creds = json.load(file)
 
 TOKEN = creds["token"]
 
@@ -17,21 +17,20 @@ TOKEN = creds["token"]
 
 # Load autostart channels
 with open('channels.json', 'r') as file:
-  auto_channels = json.load(file)
+    auto_channels = json.load(file)
 
 
 def add_channel_to_auto(channel, auto_channels):
-  auto_channels['channel_ids'].append(channel.id)
-  with open('channels.json', 'w') as file:
-    json.dump(auto_channels, file, indent=4)
+    auto_channels['channel_ids'].append(channel.id)
+    with open('channels.json', 'w') as file:
+        json.dump(auto_channels, file, indent=4)
 
 
 def remove_channel_from_auto(channel, auto_channels):
-  if channel.id in auto_channels['channel_ids']:
-    auto_channels['channel_ids'].remove(channel.id)
-    with open('channels.json', 'w') as file:
-      json.dump(auto_channels, file, indent=4)
-
+    if channel.id in auto_channels['channel_ids']:
+        auto_channels['channel_ids'].remove(channel.id)
+        with open('channels.json', 'w') as file:
+            json.dump(auto_channels, file, indent=4)
 
 class AlertBot:
 
@@ -52,7 +51,8 @@ class AlertBot:
   async def send_message(self, channel: discord.channel.TextChannel,
                          reponse: str):
     try:
-      await channel.send(reponse)
+      message = await channel.send(reponse)
+      return message
     except Exception as e:
       print(e)
 
@@ -176,10 +176,11 @@ class AlertBot:
           for cc in self.channel_clients.values():
             valid, role = cc.product_valid(prod)
             if not valid: continue
-            msg = f"{role}\n{prod}"
-            await self.send_message(cc.channel, msg)
+            msg_text = f"{role}\n{prod}"
+            message = await self.send_message(cc.channel, msg_text)
+            cc.add_product_to_file(message.created_at, prod)
             print(f"Sent {prod.name[:20]} to {cc.channel}")
-            cc.sended_urls.append(prod.url)
+
       except Exception as e:
         print("Loop error ", e)
 
@@ -204,5 +205,5 @@ class AlertBot:
 
 
 if __name__ == "__main__":
-  bot = AlertBot()
-  bot.run()
+    bot = AlertBot()
+    bot.run()

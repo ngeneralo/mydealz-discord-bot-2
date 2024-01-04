@@ -21,10 +21,12 @@ def price_str_to_float(s:str):
     return num
 
 
+
 class Product:
     def __init__(self, name:str, url:str, old_price:str, price:str, discount:str):
         self.name = name
         self.url = url
+        self.product_code = url.split('-')[-1]
         self.type = ""
         self.old_price = price_str_to_float(old_price)
         self.price = price_str_to_float(price)
@@ -34,7 +36,7 @@ class Product:
             self.discount = 0
 
     def __repr__(self):
-        text = self.url + "\n"
+        text  = f"Product {self.product_code}\n"
         text += f"Name: {self.name}\n"
         text += f"Old price: {float_to_price(self.old_price)}\n"
         text += f"New price: {float_to_price(self.price)}\n"
@@ -69,6 +71,8 @@ def get_latest(limit:int = 5):
         if not title:
             continue
         name = str(title[0].attrib.get('title'))
+        if len(name) > 200:
+            name = name[:200]+'...'
         url = str(title[0].attrib.get('href'))
         
         price = tag.find_class(price_class)
