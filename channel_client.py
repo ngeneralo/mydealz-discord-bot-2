@@ -121,6 +121,7 @@ class ChannelClient:
         return valid,' '.join(roles)
     
     def add_product_to_file(self, timestamp_utc, product:Product):
+        self.sent_products.append(product.product_code)
         if self.channel.id != MAIN_ALERT:
             return
         timestamp = timestamp_utc.astimezone().replace(tzinfo=None)
