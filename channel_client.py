@@ -26,7 +26,7 @@ class ChannelClient:
         self.channel : discord.channel.TextChannel = channel
         self.price_rules : list[tuple[str,PriceRule]] = []  # (role,PriceRule)
         self.buzzwords : list[tuple[str,str]] = []  # (role,str)
-        self.sended_urls : list[str] = []
+        self.sent_products : list[str] = []
         self.read_from_json()
 
     def to_dict(self):
@@ -102,6 +102,9 @@ class ChannelClient:
         with open('sent_alerts.json','r') as file:
             sent_alerts = json.load(file)
         if self.channel.id == MAIN_ALERT and product.product_code in sent_alerts:
+            return False,''
+        
+        if product.product_code in self.sent_products:
             return False,''
 
         for role,rule in self.price_rules:
