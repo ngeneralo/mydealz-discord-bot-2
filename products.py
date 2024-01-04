@@ -36,7 +36,7 @@ class Product:
             self.discount = 0
 
     def __repr__(self):
-        text  = f"Product {self.product_code}\n"
+        text  = f"{self.url}\n"
         text += f"Name: {self.name}\n"
         text += f"Old price: {float_to_price(self.old_price)}\n"
         text += f"New price: {float_to_price(self.price)}\n"
