@@ -66,6 +66,9 @@ class AlertBot:
       elif user_message.lower().startswith("!help"):
         with open('commands.txt', 'r') as file:
           await self.send_message(message.channel, file.read())
+      elif user_message.lower().startswith("!file"):
+        file = discord.File('sent_alerts.json')
+        await message.channel.send(file=file)
       elif user_message.lower().startswith("!bot "):
         await self.send_message(message.channel,
                                 "**!bot** command is not used anymore.")
@@ -82,7 +85,7 @@ class AlertBot:
           response = "Falsch!\n"
         response += f"Meine Zahl war {self.guess_number}."
         await self.send_message(message.channel, response)
-        self.guess_game_on = False
+        self.guess_game_on = False  
       # default handler
       elif user_message.lower().startswith("!"):
         await self.handle_bot_message(message, user_message)
