@@ -61,7 +61,9 @@ def get_latest(limit:int = 5):
     discount_class = "text--color-charcoal space--ml-1 size--all-l size--fromW3-xl"    
     
     try:
-        driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver')
+        options = Options()
+        options.binary_location = '/usr/lib/chromium-browser/chromedriver'
+        driver = webdriver.Chrome(options=options)
         driver.get(main_url)
         html_text = driver.page_source
     except requests.exceptions.RequestException as e:
