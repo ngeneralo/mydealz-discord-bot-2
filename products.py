@@ -1,4 +1,6 @@
 from lxml import html
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import requests
 
 
@@ -54,12 +56,14 @@ def get_latest(limit:int = 5):
 
     product_class = "threadGrid thread-clickRoot"
     title_class = "cept-tt thread-link linkPlain thread-title--list js-thread-title"
-    price_class = "thread-price text--b cept-tp size--all-l size--fromW3-xl"
-    old_price_class = "mute--text text--lineThrough size--all-l size--fromW3-xl"
-    discount_class = "space--ml-1 size--all-l size--fromW3-xl"    
+    price_class = "threadItemCard-price text--b thread-price size--all-l size--fromW3-xl space--mr-0"
+    old_price_class = "mute--text text--lineThrough space--ml-1 size--all-l size--fromW3-xl"
+    discount_class = "text--color-charcoal space--ml-1 size--all-l size--fromW3-xl"    
     
     try:
-        html_text = requests.get(main_url, headers=header, timeout=20).text
+        driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver')
+        driver.get(main_url)
+        html_text = driver.page_source
     except requests.exceptions.RequestException as e:
         return None
     
@@ -92,6 +96,6 @@ def get_latest(limit:int = 5):
 
 
 if __name__ == "__main__":
-    for prod in get_latest():
+    for prod in get_latest(limit=1):
         print(prod)
         print()
