@@ -1,6 +1,4 @@
 from lxml import html
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import requests
 
 
@@ -61,11 +59,7 @@ def get_latest(limit:int = 5):
     discount_class = "text--color-charcoal space--ml-1 size--all-l size--fromW3-xl"    
     
     try:
-        options = Options()
-        options.binary_location = '/usr/lib/chromium-browser/chromedriver'
-        driver = webdriver.Chrome(options=options)
-        driver.get(main_url)
-        html_text = driver.page_source
+        html_text = requests.get(main_url, headers=header, timeout=20).text
     except requests.exceptions.RequestException as e:
         return None
     
@@ -98,6 +92,6 @@ def get_latest(limit:int = 5):
 
 
 if __name__ == "__main__":
-    for prod in get_latest(limit=1):
+    for prod in get_latest():
         print(prod)
         print()
